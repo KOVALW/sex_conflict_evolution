@@ -36,3 +36,29 @@ raw_count_data <- raw_count_data %>%
       as.character(construct_line)
     )
   ))
+
+raw_count_data <- raw_count_data %>%
+  mutate(cross_line_name = ifelse(
+    substr(
+      cross_line_name,
+      nchar(cross_line_name) - 1,
+      nchar(cross_line_name)
+    ) == background_library,
+    substr(cross_line_name,
+           1, nchar(cross_line_name) - 2),
+    cross_line_name
+  ))
+
+#Computer-friendly variables-----
+raw_count_data <- raw_count_data %>% 
+  mutate(count_date = as.Date(count_date, format = "%m/%d/%Y")) %>% 
+  mutate(count_month = month(count_date)) %>% 
+  mutate(sex_test = ifelse(sex_test %in% c("808", "60100"), 
+                           NA, tolower(sex_test))) %>%
+  mutate(parental_mortality = !is.na(parental_mortality),
+         food_abnormality = !is.na(food_abnormality),
+         driver_id = as.numeric(as.factor(driver)),
+         sex_id = as.numeric(as.factor(sex_test)),
+         background_id = as.numeric(as.factor(background_library)))
+  
+  
