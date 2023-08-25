@@ -5,7 +5,7 @@ source("data/processing_code/data_cleaning.R")
 
 #Prepping beta key-----
 lines <- length(unique(processed_data$background_id))
-drivers <- length(unique(processed_data$driver_id)) #NA drivers are counted as a "driver"
+drivers <- length(unique(processed_data$driver_id)) -1#NA drivers are counted as a "driver" only when construct is present
 sexes <- length(unique(processed_data$sex_id))
 genes <- length(unique(processed_data$uniq_construct_id)) - 1 #to exclude NA
 timepoints <- length(unique(processed_data$month_id))
@@ -45,6 +45,7 @@ input_count_data <- list(
   N = length(which(processed_data$offspring_total > 0)),
   NZ = length(which(processed_data$offspring_total == 0)),
   b_coefs = ncol(tmt_spec_fx),
+  eta_coefs = length(unique(eta_fx$eta_fctr)) - 1,
   offspring = processed_data[which(processed_data$offspring_total > 0),]$offspring_total,
   eta_id = eta_fx[which(eta_fx$offspring_total > 0),]$eta_fctr,
   tmt_spec = tmt_spec_fx[which(processed_data$offspring_total > 0),]

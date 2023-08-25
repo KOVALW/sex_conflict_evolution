@@ -62,7 +62,7 @@ raw_count_data <- raw_count_data %>%
          sex_id = as.numeric(as.factor(sex_test)),
          background_id = as.numeric(as.factor(background_library)),
          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id), max(driver_id,na.rm=T)+1, driver_id))
+  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id))
   
 
 #Final input data -----
