@@ -19,6 +19,6 @@ raw_count_data %>%
   select(-o) %>% 
   write_csv("./data/data_cleaned/verify_linenumber_table.csv")
 
-#one mismatch - likely 36 not 56?
-raw_count_data %>% 
+#one mismatch identified - now checks out
+raw_count_data %>% mutate(r=row_number()) %>% 
   filter(offspring_male + offspring_female != offspring_total)

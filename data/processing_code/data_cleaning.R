@@ -57,8 +57,17 @@ raw_count_data <- raw_count_data %>%
                            NA, tolower(sex_test))) %>%
   mutate(parental_mortality = !is.na(parental_mortality),
          food_abnormality = !is.na(food_abnormality),
+         month_id = as.numeric(as.factor(as.character(count_month))),
          driver_id = as.numeric(as.factor(driver)),
          sex_id = as.numeric(as.factor(sex_test)),
-         background_id = as.numeric(as.factor(background_library)))
+         background_id = as.numeric(as.factor(background_library)),
+         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+  mutate(driver_id = ifelse(is.na(driver_id), max(driver_id,na.rm=T)+1, driver_id))
   
-  
+
+#Final input data -----
+processed_data <- raw_count_data %>% 
+  select(background_id, driver_id, uniq_construct_id,
+         sex_id, parental_mortality, month_id, 
+         driver_present, rnai_construct_present,
+         offspring_total)
