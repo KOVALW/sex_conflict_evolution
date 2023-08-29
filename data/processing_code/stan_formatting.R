@@ -60,7 +60,7 @@ eta_fx <- processed_data %>%
                     0)) %>%
   mutate(eta_fctr = as.numeric(factor(i))) 
 
-#Formatted sstan data----
+#Formatted stan data----
 input_count_data <- list(
   N = length(which(processed_data$offspring_total > 0)),
   NZ = length(which(processed_data$offspring_total == 0)),

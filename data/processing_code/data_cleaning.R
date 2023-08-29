@@ -62,7 +62,7 @@ gene_key <- gene_key %>%
 
 cleaned_count_data <- raw_count_data %>% 
   select(background_library, background_line, driver, construct_line, sex_test, count_date, bio_replicate, starts_with("offspring"), food_abnormality, parental_mortality, driver_present, rnai_construct_present) %>% 
-  full_join(gene_key,
+  left_join(gene_key,
             by = c("background_library", "construct_line"))
   
 
@@ -84,7 +84,19 @@ cleaned_count_data <- cleaned_count_data %>%
 
 #Final input data -----
 processed_data <- cleaned_count_data %>% 
+  filter(!is.na(offspring_total)) %>%
   select(background_id, driver_id, uniq_construct_id,
          sex_id, parental_mortality, month_id, 
          driver_present, rnai_construct_present,
          offspring_total)
+
+#summary table to write-----
+cleaned_count_data %>%
+  filter(!is.na(offspring_total)) %>%
+  group_by(background_library, background_line,
+           driver, construct_line, gene_name, vdrc_id, 
+           sex_test, driver_present, 
+           rnai_construct_present) %>% 
+  summarise(replicates = n(), net_offspring_produced = sum(offspring_total)) %>% 
+  ungroup() %>% 
+  write_csv("data/data_cleaned/offspring_summary.csv")
