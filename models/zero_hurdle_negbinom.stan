@@ -23,7 +23,7 @@ parameters {
   
   real<lower=3,upper=5> base_reproduction;
   real<lower=0, upper=1> theta;
-  real<lower=0> phi;
+  real<lower=0, upper=100> phi;
   
   vector[b_coefs] beta_vals;
   vector[eta_coefs] etas;
@@ -46,7 +46,7 @@ model {
   theta ~ uniform(0,1);
   etas ~ normal(0, 5);
   beta_vals ~ normal(0, 5);
-  phi ~ uniform(0,)
+  phi ~ uniform(0,100);
   
   target += neg_binomial_2_log_glm_lpmf(offspring | tmt_spec, alpha[eta_id], beta_vals, phi) - 
             log1m_exp(neg_binomial_2_log_glm_lpmf(zeroes | tmt_spec, alpha[eta_id], beta_vals, phi));
