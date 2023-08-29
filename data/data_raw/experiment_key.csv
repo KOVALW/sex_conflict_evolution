@@ -6,7 +6,7 @@ construct_line,gene_name,Nos_GAL4,Nos_GAL4_library,Act5c_GAL4,Act5c-GAL4_library
 8,CG6367,Yes,GD,Yes,GD,Yes,GD
 9,CG10852,No,NA,Yes,KK,Yes,KK
 10,CG6639,Yes,KK,Yes,KK,Yes,KK
-15,CG8856,Yes,GD,Yes,KK,Yes,KK
+15,CG8856,Yes,KK,Yes,KK,Yes,KK
 16,CG7157,Yes,KK,Yes,KK,Yes,KK
 17,CG15882,No,NA,Yes,KK,Yes,KK
 18,CG3217,Yes,KK,Yes,KK,Yes,KK
@@ -39,7 +39,7 @@ construct_line,gene_name,Nos_GAL4,Nos_GAL4_library,Act5c_GAL4,Act5c-GAL4_library
 69,CG31791,Yes,GD,Yes,GD,Yes,GD
 70,CG13656,No,NA,Yes,GD,Yes,GD
 3,CG32021,No,NA,Yes,KK,Yes,KK
-47,CG3410,Yes,GD,Yes,KK,Yes,KK
+47,CG3410,Yes,KK,Yes,KK,Yes,KK
 60,CG2885,Yes,KK,Yes,KK,Yes,KK
 74,CG12725,Yes,KK,Yes,KK,Yes,KK
 75,CG17440,Yes,KK,Yes,KK,Yes,KK

@@ -3,6 +3,7 @@ source("data/processing_code/data_cleaning.R")
 c("GD","KK") == unique(raw_count_data$background_library)
 
 #Unsure of the following table because construct names in cross don't match line ID
+#Now taken care of with gene key
 raw_count_data %>% 
   mutate(r = row_number()) %>% 
   filter(driver == "Nos-GAL4") %>% 
@@ -50,8 +51,21 @@ observed_experiments <- cleaned_count_data %>%
             ) %>% 
   ungroup() 
 
-observed_experiments %>% 
+obs_table <- observed_experiments %>% 
+  filter(!is.na(driver) & !is.na(construct_line)) %>%
+  select(-obs) %>% 
   arrange(construct_line, background_library, driver)
 
-experiment_list %>% 
+experiment_table <- experiment_list %>% 
   arrange(construct_line, background_library, driver)
+
+#ID row numbers with inconsistencies
+which(experiment_table != obs_table) %% 347
+#now no problems!
+#problems in rows 42,43  141,142
+#lines 47 and 15 have background library GD in data and KK on experiment list
+# obs_table[141:142,]
+# experiment_table[141:142,]
+# 
+# obs_table[42:43,]
+# experiment_table[42:43,]
