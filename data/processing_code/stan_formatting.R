@@ -2,7 +2,7 @@ source("data/processing_code/data_cleaning.R")
 
 #Script to prepare stan inputs from cleaned data
 #Switch between prcessed data for full model fits and testing data for seeing model functionality
-data_set <- testing_data
+data_set <- nosgal4_data
 
 #Prepping beta key-----
 lines <- length(unique(data_set$background_id))
