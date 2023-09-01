@@ -1,31 +1,32 @@
 source("data/processing_code/data_cleaning.R")
 
 #Script to prepare stan inputs from cleaned data
-
+#Switch between prcessed data for full model fits and testing data for seeing model functionality
+data_set <- testing_data
 
 #Prepping beta key-----
-lines <- length(unique(processed_data$background_id))
-drivers <- length(unique(processed_data$driver_id)) - 1 #NA drivers are counted as a "driver" only when construct is present but both should be removed in beta_fx
-sexes <- length(unique(processed_data$sex_id)) - 1
-genes <- length(unique(processed_data$uniq_construct_id)) - 1 #to exclude NA
-timepoints <- length(unique(processed_data$month_id)) - 1
-datapoints <- nrow(processed_data)
+lines <- length(unique(data_set$background_id))
+drivers <- length(unique(data_set$driver_id)) - 1 #NA drivers are counted as a "driver" only when construct is present but both should be removed in beta_fx
+sexes <- length(unique(data_set$sex_id)) - 1
+genes <- length(unique(data_set$uniq_construct_id)) - 1 #to exclude NA
+timepoints <- length(unique(data_set$month_id)) - 1
+datapoints <- nrow(data_set)
 
 tmt_spec_fx <- matrix(0, 
                       nrow = datapoints, 
                       ncol = lines + timepoints + (drivers*sexes*lines))
 
 for(i in 1:datapoints){
-  s <- processed_data[i,]$sex_id 
-  d <- processed_data[i,]$driver_id
-  ln <- processed_data[i,]$background_id
-  m <- processed_data[i,]$month_id
+  s <- data_set[i,]$sex_id 
+  d <- data_set[i,]$driver_id
+  ln <- data_set[i,]$background_id
+  m <- data_set[i,]$month_id
   
   tmt_spec_fx[i,m] <- 1
   
   tmt_spec_fx[i,timepoints + ln] <- 1
   exp_column <- timepoints + lines + d + (s-1)*drivers + (ln - 1)*drivers*sexes
-  submit_fx <- processed_data$driver_present[i]
+  submit_fx <- data_set$driver_present[i]
   if(!is.na(submit_fx + exp_column) & submit_fx)
     tmt_spec_fx[i, exp_column] <- 1
 }
@@ -53,7 +54,7 @@ for(ln in 1:lines){
   }
 }
 
-eta_fx <- processed_data %>% 
+eta_fx <- data_set %>% 
   mutate(i = ifelse(rnai_construct_present == 1, 
                     uniq_construct_id + (sex_id-1)*genes + 
                       (driver_id-1) * genes * sexes + (ln - 1) * drivers * sexes * genes, 
@@ -62,12 +63,12 @@ eta_fx <- processed_data %>%
 
 #Formatted stan data----
 input_count_data <- list(
-  N = length(which(processed_data$offspring_total > 0)),
-  NZ = length(which(processed_data$offspring_total == 0)),
+  N = length(which(data_set$offspring_total > 0)),
+  NZ = length(which(data_set$offspring_total == 0)),
   b_coefs = ncol(tmt_spec_fx),
   eta_coefs = length(unique(eta_fx$eta_fctr)) - 1,
-  offspring = processed_data[which(processed_data$offspring_total > 0),]$offspring_total,
+  offspring = data_set[which(data_set$offspring_total > 0),]$offspring_total,
   eta_id = eta_fx[which(eta_fx$offspring_total > 0),]$eta_fctr,
-  tmt_spec = tmt_spec_fx[which(processed_data$offspring_total > 0),]
+  tmt_spec = tmt_spec_fx[which(data_set$offspring_total > 0),]
 )
 

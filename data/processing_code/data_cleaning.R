@@ -119,9 +119,18 @@ multibackground_test_lines <- experiment_list %>%
   filter(o > 3) %>% 
   select(construct_line)
 
+#Recalculate ids of each factor
 testing_data <- cleaned_count_data %>% 
   filter(!is.na(offspring_total) &
-           construct_line %in% multibackground_test_lines$construct_line) %>%
+           (construct_line %in% multibackground_test_lines$construct_line | !rnai_construct_present))  %>%
+  mutate(parental_mortality = !is.na(parental_mortality),
+         food_abnormality = !is.na(food_abnormality),
+         month_id = as.numeric(as.factor(as.character(count_month))),
+         driver_id = as.numeric(as.factor(driver)),
+         sex_id = as.numeric(as.factor(sex_test)),
+         background_id = as.numeric(as.factor(background_library)),
+         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
   select(background_id, driver_id, uniq_construct_id,
          sex_id, parental_mortality, month_id, 
          driver_present, rnai_construct_present,
