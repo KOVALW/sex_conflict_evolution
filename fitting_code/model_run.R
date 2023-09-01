@@ -17,7 +17,10 @@ model_output <- stan(file = paste0("./models/zero_hurdle_",model_distro,".stan")
 
 if(data_set == testing_data){
   fp_model <- paste0("./models/",model_distro,"_testing_fit.rds")
+} else if (data_set == nosgal4_data) {
+  fp_model <- paste0("./models/",model_distro,"_nosgal4_fit.rds")
 } else {
   fp_model <- paste0("./models/",model_distro,"_fit.rds")
 }
+
 saveRDS(model_output, file = )
