@@ -81,10 +81,47 @@ cleaned_count_data <- cleaned_count_data %>%
          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
   mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id))
   
+#Recreate experiment key-----
+driver_lede_key <- raw_count_data %>% 
+  group_by(driver) %>% 
+  summarise(o=n()) %>% 
+  filter(!is.na(driver)) %>% 
+  select(-o) %>% 
+  mutate(driver_lede = substr(driver,1,3))
+
+experiment_list <- gene_driver_pair %>% 
+  select(construct_line, gene_name,ends_with("library")) %>% 
+  gather(-construct_line, -gene_name, key = "driver_lede", value = "libraries_used") %>% 
+  mutate(driver_lede = substr(driver_lede, 1,3),
+         GD = grepl("GD", libraries_used),
+         KK = grepl("KK", libraries_used)) %>% 
+  select(-libraries_used) %>% 
+  gather(-construct_line, -gene_name, -driver_lede, key = "background_library", value = "used") %>% 
+  filter(used) %>% 
+  left_join(driver_lede_key,
+            by = "driver_lede") %>% 
+  select(-used, -driver_lede)
 
 #Final input data -----
 processed_data <- cleaned_count_data %>% 
   filter(!is.na(offspring_total)) %>%
+  select(background_id, driver_id, uniq_construct_id,
+         sex_id, parental_mortality, month_id, 
+         driver_present, rnai_construct_present,
+         offspring_total)
+
+#Testing data -----
+
+multibackground_test_lines <- experiment_list %>% 
+  group_by(construct_line) %>% 
+  summarise(o=n()) %>% 
+  ungroup() %>%  
+  filter(o > 3) %>% 
+  select(construct_line)
+
+testing_data <- cleaned_count_data %>% 
+  filter(!is.na(offspring_total) &
+           construct_line %in% multibackground_test_lines$construct_line) %>%
   select(background_id, driver_id, uniq_construct_id,
          sex_id, parental_mortality, month_id, 
          driver_present, rnai_construct_present,
