@@ -57,7 +57,7 @@ for(ln in 1:lines){
 eta_fx <- data_set %>% 
   mutate(i = ifelse(rnai_construct_present == 1, 
                     uniq_construct_id + (sex_id-1)*genes + 
-                      (driver_id-1) * genes * sexes + (ln - 1) * drivers * sexes * genes, 
+                      (driver_id-1) * genes * sexes + (background_id - 1) * drivers * sexes * genes, 
                     0)) %>%
   mutate(eta_fctr = as.numeric(factor(i))) 
 
