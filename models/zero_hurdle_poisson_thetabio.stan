@@ -32,7 +32,7 @@ parameters {
   real<lower=0,upper=1> base_theta;
   real<lower=0,upper=1> mort_theta;
   
-  vector[Ktheta] tmt_theta;
+  vector<lower=0, upper=1>[Ktheta] tmt_theta;
   
   vector[b_coefs] beta_vals;
   vector[eta_coefs] etas;
@@ -41,7 +41,7 @@ parameters {
 
 transformed parameters {
   vector[eta_coefs1] alpha = rep_vector(base_reproduction, eta_coefs1);
-  vector[K1] theta_spec = rep_vector(0, K1);
+  vector<lower=0, upper=1>[K1] theta_spec = rep_vector(0, K1);
   vector<lower=0, upper=1>[NZincl] theta;
   vector<lower=0, upper=1>[NZincl] mort_fx = rep_vector(0, NZincl);
   
