@@ -41,7 +41,7 @@ parameters {
 
 transformed parameters {
   vector[eta_coefs1] alpha = rep_vector(base_reproduction, eta_coefs1);
-  vector[K1] ctrl_theta = rep_vector(0, K1);
+  vector[K1] theta_spec = rep_vector(0, K1);
   vector<lower=0, upper=1>[NZincl] theta;
   vector<lower=0, upper=1>[NZincl] mort_fx = rep_vector(0, NZincl);
   
@@ -50,12 +50,12 @@ transformed parameters {
   }
   
   for (i in 2:K1) {
-    ctrl_theta[i] += tmt_theta[i-1];
+    theta_spec[i] += tmt_theta[i-1];
   }
   
   for ( i in 1:NZincl){
-    mort_fx[i] += mort_theta;
-    theta[i] = base_theta + (1-base_theta) * (mort_fx[i] + (1 - mort_fx[i]) * tmt_theta[theta_id[i]]);
+    mort_fx[i] += mort_theta * mortality[i];
+    theta[i] = base_theta + (1-base_theta) * (mort_fx[i] + (1 - mort_fx[i]) * theta_spec[theta_id[i]]);
   }
   
 }
