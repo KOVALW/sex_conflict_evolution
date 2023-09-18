@@ -10,17 +10,45 @@ options(mc.cores = parallel::detectCores())#,
 rstan_options(auto_write = TRUE) #auto-write compiled code to hard drive
 
 model_distro <- "poisson"
+theta_fx_bio <- T
 
-model_output <- stan(file = paste0("./models/zero_hurdle_",model_distro,".stan"), 
-     data = input_count_data, 
-     iter = 2000)
-
-if(identical(data_set, testing_data)){
-  fp_model <- paste0("./models/",model_distro,"_testing_fit.rds")
-} else if (identical(data_set, nosgal4_data)) {
-  fp_model <- paste0("./models/",model_distro,"_nosgal4_fit.rds")
+if(!theta_fx_bio) {
+  model_output <-
+    stan(
+      file = paste0("./models/zero_hurdle_", model_distro, ".stan"),
+      data = input_count_data,
+      iter = 2000
+    )
+  
+  if (identical(data_set, testing_data)) {
+    fp_model <- paste0("./models/", model_distro, "_testing_fit.rds")
+  } else if (identical(data_set, nosgal4_data)) {
+    fp_model <- paste0("./models/", model_distro, "_nosgal4_fit.rds")
+  } else if (identical(data_set, gschwend_data)) {
+    fp_model <- paste0("./models/", model_distro, "_act5tubp_fit.rds")
+  } else {
+    fp_model <- paste0("./models/", model_distro, "_fit.rds")
+  }
 } else {
-  fp_model <- paste0("./models/",model_distro,"_fit.rds")
+  model_output <-
+    stan(
+      file = paste0("./models/zero_hurdle_", model_distro, "_thetabio.stan"),
+      data = input_count_data_thetafx,
+      iter = 2000
+    )
+  
+  if (identical(data_set, testing_data)) {
+    fp_model <-
+      paste0("./models/", model_distro, "_thetabio_testing_fit.rds")
+  } else if (identical(data_set, nosgal4_data)) {
+    fp_model <-
+      paste0("./models/", model_distro, "_thetabio_nosgal4_fit.rds")
+  } else if (identical(data_set, gschwend_data)) {
+    fp_model <-
+      paste0("./models/", model_distro, "_thetabio_act5tubp_fit.rds")
+  } else {
+    fp_model <- paste0("./models/", model_distro, "_thetabio_fit.rds")
+  }
 }
 
 saveRDS(model_output, file = fp_model)

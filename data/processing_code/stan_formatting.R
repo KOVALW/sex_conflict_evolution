@@ -72,3 +72,28 @@ input_count_data <- list(
   tmt_spec = tmt_spec_fx[which(data_set$offspring_total > 0),]
 )
 
+theta_set <- data_set %>% 
+  group_by(sex_id, driver_id, driver_present, rnai_construct_present) %>% 
+  summarise(o=n()) %>% 
+  ungroup() %>% 
+  filter(rnai_construct_present & driver_present) %>% 
+  mutate(theta_id = row_number() + 1) %>% 
+  select(-o) %>% 
+  full_join(data_set %>% 
+              mutate(r = row_number())) %>% 
+  mutate(theta_id = ifelse(is.na(theta_id),1,theta_id)) %>% 
+  arrange(r)
+
+input_count_data_thetafx <- list(
+  N = length(which(data_set$offspring_total > 0)),
+  NZincl = nrow(data_set),
+  Ktheta = length(unique(theta_set$theta_id)) - 1,
+  b_coefs = ncol(tmt_spec_fx),
+  eta_coefs = length(unique(eta_fx$eta_fctr)) - 1,
+  offspring = data_set[which(data_set$offspring_total > 0),]$offspring_total,
+  eta_id = eta_fx[which(eta_fx$offspring_total > 0),]$eta_fctr,
+  theta_id = theta_set$theta_id,
+  mortality = as.integer(data_set$parental_mortality),
+  zero_bool = as.integer(data_set$offspring_total == 0),
+  tmt_spec = tmt_spec_fx[which(data_set$offspring_total > 0),]
+)
