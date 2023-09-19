@@ -12,15 +12,25 @@ genes <- length(unique(data_set$uniq_construct_id)) - 1 #to exclude NA
 timepoints <- length(unique(data_set$month_id)) - 1
 datapoints <- nrow(data_set)
 
+construct_only <- data_set %>% 
+  filter(!driver_present & rnai_construct_present) %>% 
+  group_by(uniq_construct_id) %>% 
+  summarise(o=n()) %>% 
+  ungroup() %>% 
+  select(uniq_construct_id) %>% 
+  as.matrix() %>% 
+  as.numeric()
+
 tmt_spec_fx <- matrix(0, 
                       nrow = datapoints, 
-                      ncol = lines + timepoints + (drivers*sexes*lines))
+                      ncol = lines + timepoints + (drivers*sexes*lines) + length(construct_only))
 
 for(i in 1:datapoints){
   s <- data_set[i,]$sex_id 
   d <- data_set[i,]$driver_id
   ln <- data_set[i,]$background_id
   m <- data_set[i,]$month_id
+  con <- data_set[i,]$uniq_construct_id
   
   tmt_spec_fx[i,m] <- 1
   
@@ -29,10 +39,15 @@ for(i in 1:datapoints){
   submit_fx <- data_set$driver_present[i]
   if(!is.na(submit_fx + exp_column) & submit_fx)
     tmt_spec_fx[i, exp_column] <- 1
+  if(!submit_fx & con %in% construct_only)
+    tmt_spec_fx[i,which(construct_only == con)+lines + timepoints + (drivers*sexes*lines)] <- 1
 }
 
 tmt_spec_fx <- tmt_spec_fx[,which(colSums(tmt_spec_fx)>0)]
 
+#below beta fx key needs to be fixed for alignment with new construct fx
+#Make consistent code that allows for model building of 1 effect for construct presence or driver x sex construct fx or current all construct fx
+#Drop construct only from the eta fx list.
 #effect key----
 beta_fx_key <- data.frame()
 for(ln in 1:lines){
