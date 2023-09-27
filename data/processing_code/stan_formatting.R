@@ -1,15 +1,15 @@
 source("data/processing_code/data_cleaning.R")
 
 #Script to prepare stan inputs from cleaned data
-#Switch between prcessed data for full model fits and testing data for seeing model functionality
-data_set <- nosgal4_data
+#Switch between processed data for full model fits and testing data for seeing model functionality
+data_set <- processed_data #nosgal4_data
 
 #Prepping beta key-----
 lines <- length(unique(data_set$background_id))
-drivers <- length(unique(data_set$driver_id)) - 1 #NA drivers are counted as a "driver" only when construct is present but both should be removed in beta_fx
+drivers <- length(unique(data_set$driver_id)) - 1 #NA drivers are no longer counted as a "driver" when construct is present because we consider this a separate effect
 sexes <- length(unique(data_set$sex_id)) - 1
 genes <- length(unique(data_set$uniq_construct_id)) - 1 #to exclude NA
-timepoints <- length(unique(data_set$month_id)) - 1
+timepoints <- length(unique(data_set$month_id)) #NA dates provide an effect from Andrea's research
 datapoints <- nrow(data_set)
 
 construct_only <- data_set %>% 
@@ -33,6 +33,9 @@ for(i in 1:datapoints){
   con <- data_set[i,]$uniq_construct_id
   
   tmt_spec_fx[i,m] <- 1
+  if(is.na(m)) {
+    tmt_spec_fx[i,timepoints] <- 1
+  }
   
   tmt_spec_fx[i,timepoints + ln] <- 1
   exp_column <- timepoints + lines + d + (s-1)*drivers + (ln - 1)*drivers*sexes
