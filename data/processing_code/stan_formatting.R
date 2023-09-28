@@ -46,18 +46,24 @@ for(i in 1:datapoints){
     tmt_spec_fx[i,which(construct_only == con)+lines + timepoints + (drivers*sexes*lines)] <- 1
 }
 
-tmt_spec_fx <- tmt_spec_fx[,which(colSums(tmt_spec_fx)>0)]
 
 #below beta fx key needs to be fixed for alignment with new construct fx
 #Make consistent code that allows for model building of 1 effect for construct presence or driver x sex construct fx or current all construct fx
 #Drop construct only from the eta fx list.
 #effect key----
-beta_fx_key <- data.frame()
+beta_fx_key <- data.frame(background_id = NA,
+                          sex_id = NA, 
+                          driver_id = NA,
+                          construct_id = NA,
+                          month_id = c(1:(timepoints-1),2018),
+                          beta_id = 1:timepoints)
 for(ln in 1:lines){
   beta_fx_key <- bind_rows(beta_fx_key,
                            data.frame(background_id = ln,
                                       sex_id = NA,
                                       driver_id = NA,
+                                      construct_id = NA,
+                                      month_id = NA,
                                       beta_id = timepoints + ln))
   for(d in 1:(drivers-1)) {
     for (s in 1:sexes) {
@@ -66,11 +72,33 @@ for(ln in 1:lines){
                               data.frame(background_id = ln,
                                          sex_id = s,
                                          driver_id = d,
+                                         construct_id = NA,
+                                         month_id = NA,
                                          beta_id = timepoints + lines + d + (s-1)*drivers + (ln - 1)*drivers*sexes))
+      
       
     }
   }
 }
+
+
+for(con in 1:length(construct_only)) {
+  beta_fx_key <- bind_rows(beta_fx_key,
+                           data.frame(background_id = NA,
+                                      sex_id = NA,
+                                      driver_id = NA,
+                                      construct_id = construct_only[con],
+                                      month_id = NA,
+                                      beta_id = con + lines + timepoints + (drivers*sexes*lines)))
+}
+
+beta_fx_key <- beta_fx_key %>% 
+  arrange(beta_id) %>% 
+  filter(beta_id %in% which(colSums(tmt_spec_fx)>0)) %>% 
+  mutate(beta_val_id = row_number())
+
+tmt_spec_fx <- tmt_spec_fx[,which(colSums(tmt_spec_fx)>0)]
+
 
 eta_fx <- data_set %>% 
   mutate(i = ifelse(rnai_construct_present == 1, 
