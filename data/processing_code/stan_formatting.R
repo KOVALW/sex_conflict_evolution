@@ -2,7 +2,7 @@ source("data/processing_code/data_cleaning.R")
 
 nosgal4_data <- cleaned_count_data %>% 
   filter(!is.na(offspring_total) & !is.na(count_date))  %>%
-  mutate(month_id = as.numeric(as.factor(as.character(count_month))),
+  mutate(time_id = as.numeric(as.factor(as.character(count_date))),
          driver_id = as.numeric(as.factor(driver)),
          sex_id = as.numeric(as.factor(sex_test)),
          background_id = as.numeric(as.factor(background_library)),
@@ -12,7 +12,7 @@ nosgal4_data <- cleaned_count_data %>%
 
 data_set <- nosgal4_data %>% 
   select(background_id, driver_id, uniq_construct_id,
-         sex_id, parental_mortality, month_id, 
+         sex_id, parental_mortality, time_id, 
          driver_present, rnai_construct_present,
          offspring_total)
 
@@ -20,6 +20,7 @@ lines <- length(unique(data_set$background_id))
 drivers <- length(unique(data_set$driver_id)) - 1 #NA drivers should not be counted as a "driver" when construct is present because we consider this a separate additive effect
 sexes <- length(unique(data_set$sex_id)) - 1
 genes <- length(unique(data_set$uniq_construct_id)) - 1 #to exclude NA
+timepoints <- length(unique(data_set$time_id))
 
 datapoints <- nrow(data_set)
 
@@ -35,13 +36,14 @@ construct_only <- data_set %>%
 #Binary effect matrix for multiplying by effect size vector in regression model-----
 tmt_spec_fx <- matrix(0, 
                       nrow = datapoints, 
-                      ncol = lines + (drivers*sexes*lines) + length(construct_only))
+                      ncol = lines + (drivers*sexes*lines) + length(construct_only) + timepoints)
 
 for(i in 1:datapoints){
   s <- data_set[i,]$sex_id 
   d <- data_set[i,]$driver_id
   ln <- data_set[i,]$background_id
   con <- data_set[i,]$uniq_construct_id
+  tm <- data_set[i,]$time_id
   
   tmt_spec_fx[i, ln] <- 1
   exp_column <- lines + d + (s-1)*drivers + (ln - 1)*drivers*sexes
@@ -50,6 +52,8 @@ for(i in 1:datapoints){
     tmt_spec_fx[i, exp_column] <- 1
   if(!submit_fx & con %in% construct_only)
     tmt_spec_fx[i, which(construct_only == con) + lines + (drivers*sexes*lines)] <- 1
+  
+  tmt_spec_fx[i, tm + lines + length(construct_only) + (drivers*sexes*lines)] <- 1
 }
 
 #Simplified effect key from matrix-----
@@ -62,6 +66,7 @@ for(ln in 1:lines){
                                       sex_id = NA,
                                       driver_id = NA,
                                       construct_id = NA,
+                                      time_id = NA,
                                       beta_id = ln))
   for(d in 1:drivers) {
     for (s in 1:sexes) {
@@ -71,6 +76,7 @@ for(ln in 1:lines){
                                          sex_id = s,
                                          driver_id = d,
                                          construct_id = NA,
+                                         time_id = NA,
                                          beta_id = lines + d + (s-1)*drivers + (ln - 1)*drivers*sexes))
       
       
@@ -85,7 +91,18 @@ for(con in 1:length(construct_only)) {
                                       sex_id = NA,
                                       driver_id = NA,
                                       construct_id = construct_only[con],
+                                      time_id = NA,
                                       beta_id = con + lines + (drivers*sexes*lines)))
+}
+
+for (tm in 1:timepoints) {
+  beta_fx_key <- bind_rows(beta_fx_key,
+                           data.frame(background_id = NA,
+                                      sex_id = NA,
+                                      driver_id = NA,
+                                      construct_id = construct_only[con],
+                                      time_id = tm,
+                                      beta_id = tm + length(construct_only) + lines + (drivers*sexes*lines)))
 }
 
 beta_fx_key <- beta_fx_key %>% 
