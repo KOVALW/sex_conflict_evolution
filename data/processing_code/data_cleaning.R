@@ -10,7 +10,7 @@ gene_driver_pair <- read_csv("data/data_raw/experiment_key.csv")
 libraries_incl <- c("GD","KK")
 
 raw_count_data <- raw_count_data %>%
-  mutate(background_line = as.numeric(background_line)) %>% 
+  mutate(background_line = as.numeric(background_line)) %>% #coerces "hybrid vigor control" to NA, safe to ignore warning message
   mutate(driver_present = !is.na(driver)) %>% 
   mutate(background_library = ifelse(!background_library %in% libraries_incl , 
                                      ifelse(background_line == 60100, "KK",
@@ -78,8 +78,8 @@ cleaned_count_data <- cleaned_count_data %>%
          driver_id = as.numeric(as.factor(driver)),
          sex_id = as.numeric(as.factor(sex_test)),
          background_id = as.numeric(as.factor(background_library)),
-         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id))
+         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) #%>% 
+  #mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id))
   
 #Recreate experiment key-----
 driver_lede_key <- raw_count_data %>% 
@@ -111,79 +111,79 @@ processed_data <- cleaned_count_data %>%
          offspring_total)
 
 #Somatic drivers data-----
-gschwend_data <- cleaned_count_data %>% 
-  filter(!is.na(offspring_total) & is.na(count_date)) %>%
-  mutate(month_id = as.numeric(as.factor(as.character(count_month))),
-         driver_id = as.numeric(as.factor(driver)),
-         sex_id = as.numeric(as.factor(sex_test)),
-         background_id = as.numeric(as.factor(background_library)),
-         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
-  select(background_id, driver_id, uniq_construct_id,
-         sex_id, parental_mortality, month_id, 
-         driver_present, rnai_construct_present,
-         offspring_total)
-
-#Testing data -----
-
-multibackground_test_lines <- experiment_list %>% 
-  group_by(construct_line) %>% 
-  summarise(o=n()) %>% 
-  ungroup() %>%  
-  filter(o > 3) %>% 
-  select(construct_line)
-
-nosgal4_test_lines <- experiment_list %>% 
-  filter(driver == "Nos-GAL4") %>% 
-  group_by(construct_line) %>% 
-  summarise(o=n()) %>% 
-  ungroup() %>%  
-  select(construct_line)
-
-#Recalculate ids of each factor
-testing_data <- cleaned_count_data %>% 
-  filter(!is.na(offspring_total) &
-           (construct_line %in% multibackground_test_lines$construct_line | !rnai_construct_present))  %>%
-  mutate(month_id = as.numeric(as.factor(as.character(count_month))),
-         driver_id = as.numeric(as.factor(driver)),
-         sex_id = as.numeric(as.factor(sex_test)),
-         background_id = as.numeric(as.factor(background_library)),
-         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
-  select(background_id, driver_id, uniq_construct_id,
-         sex_id, parental_mortality, month_id, 
-         driver_present, rnai_construct_present,
-         offspring_total)
-
-#germline count data-----
-germline_data <- cleaned_count_data %>% 
-  filter(!is.na(offspring_total) & 
-           (!rnai_construct_present | construct_line %in% nosgal4_test_lines$construct_line) & 
-          (driver == "Nos-GAL4" | is.na(driver)))  %>%
-  mutate(month_id = as.numeric(as.factor(as.character(count_month))),
-         driver_id = as.numeric(as.factor(driver)),
-         sex_id = as.numeric(as.factor(sex_test)),
-         background_id = as.numeric(as.factor(background_library)),
-         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
-  select(background_id, driver_id, uniq_construct_id,
-         sex_id, parental_mortality, month_id, 
-         driver_present, rnai_construct_present,
-         offspring_total)
-
-#New data alone count data-----
-nosgal4_data <- cleaned_count_data %>% 
-  filter(!is.na(offspring_total) & !is.na(count_date))  %>%
-  mutate(month_id = as.numeric(as.factor(as.character(count_month))),
-         driver_id = as.numeric(as.factor(driver)),
-         sex_id = as.numeric(as.factor(sex_test)),
-         background_id = as.numeric(as.factor(background_library)),
-         uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
-  mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
-  select(background_id, driver_id, uniq_construct_id,
-         sex_id, parental_mortality, month_id, 
-         driver_present, rnai_construct_present,
-         offspring_total)
+# gschwend_data <- cleaned_count_data %>% 
+#   filter(!is.na(offspring_total) & is.na(count_date)) %>%
+#   mutate(month_id = as.numeric(as.factor(as.character(count_month))),
+#          driver_id = as.numeric(as.factor(driver)),
+#          sex_id = as.numeric(as.factor(sex_test)),
+#          background_id = as.numeric(as.factor(background_library)),
+#          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+#   mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
+#   select(background_id, driver_id, uniq_construct_id,
+#          sex_id, parental_mortality, month_id, 
+#          driver_present, rnai_construct_present,
+#          offspring_total)
+# 
+# #Testing data -----
+# 
+# multibackground_test_lines <- experiment_list %>% 
+#   group_by(construct_line) %>% 
+#   summarise(o=n()) %>% 
+#   ungroup() %>%  
+#   filter(o > 3) %>% 
+#   select(construct_line)
+# 
+# nosgal4_test_lines <- experiment_list %>% 
+#   filter(driver == "Nos-GAL4") %>% 
+#   group_by(construct_line) %>% 
+#   summarise(o=n()) %>% 
+#   ungroup() %>%  
+#   select(construct_line)
+# 
+# #Recalculate ids of each factor
+# testing_data <- cleaned_count_data %>% 
+#   filter(!is.na(offspring_total) &
+#            (construct_line %in% multibackground_test_lines$construct_line | !rnai_construct_present))  %>%
+#   mutate(month_id = as.numeric(as.factor(as.character(count_month))),
+#          driver_id = as.numeric(as.factor(driver)),
+#          sex_id = as.numeric(as.factor(sex_test)),
+#          background_id = as.numeric(as.factor(background_library)),
+#          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+#   mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
+#   select(background_id, driver_id, uniq_construct_id,
+#          sex_id, parental_mortality, month_id, 
+#          driver_present, rnai_construct_present,
+#          offspring_total)
+# 
+# #germline count data-----
+# germline_data <- cleaned_count_data %>% 
+#   filter(!is.na(offspring_total) & 
+#            (!rnai_construct_present | construct_line %in% nosgal4_test_lines$construct_line) & 
+#           (driver == "Nos-GAL4" | is.na(driver)))  %>%
+#   mutate(month_id = as.numeric(as.factor(as.character(count_month))),
+#          driver_id = as.numeric(as.factor(driver)),
+#          sex_id = as.numeric(as.factor(sex_test)),
+#          background_id = as.numeric(as.factor(background_library)),
+#          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+#   mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
+#   select(background_id, driver_id, uniq_construct_id,
+#          sex_id, parental_mortality, month_id, 
+#          driver_present, rnai_construct_present,
+#          offspring_total)
+# 
+# #New data alone count data-----
+# nosgal4_data <- cleaned_count_data %>% 
+#   filter(!is.na(offspring_total) & !is.na(count_date))  %>%
+#   mutate(month_id = as.numeric(as.factor(as.character(count_month))),
+#          driver_id = as.numeric(as.factor(driver)),
+#          sex_id = as.numeric(as.factor(sex_test)),
+#          background_id = as.numeric(as.factor(background_library)),
+#          uniq_construct_id = as.numeric(as.factor(as.character(construct_line)))) %>% 
+#   mutate(driver_id = ifelse(is.na(driver_id) & rnai_construct_present, max(driver_id,na.rm=T)+1, driver_id)) %>%
+#   select(background_id, driver_id, uniq_construct_id,
+#          sex_id, parental_mortality, month_id, 
+#          driver_present, rnai_construct_present,
+#          offspring_total)
 
 #summary table to write-----
 cleaned_count_data %>%
