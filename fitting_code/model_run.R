@@ -15,8 +15,8 @@ theta_fx_bio <- T
 if(!theta_fx_bio) {
   model_output <-
     stan(
-      file = paste0("./models/zero_hurdle_", model_distro, ".stan"),
-      data = input_count_data,
+      file = paste0("./models/zero_hurdle_", model_distro, "_thetafix.stan"),
+      data = input_count_data_theta_onefx,
       iter = 2000
     )
   

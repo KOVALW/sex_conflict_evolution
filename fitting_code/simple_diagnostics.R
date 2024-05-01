@@ -1,13 +1,13 @@
-#Testing data poisson took ~30 mins to complete for 2K itns
+#Testing data poisson took ~30 mins to complete for 2K itns but did converge.
 # 1: There were 2689 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
 # http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded 
 # 2: Examine the pairs() plot to diagnose sampling problems
 
 #Clean output for Nos-GAL4 and NA driver + construct but Act5c and Tubp very wide variance (posterior credible interval basically (-3, +3))
 
-#Separating into Nos-GAL4 or NA (including construct only orientations)
+#Separating into Nos-GAL4 or NA (including construct only orientations) have to run again
 
-traceplot(model_output, c("base_reproduction", "theta","lp__"))
+traceplot(model_output, c("base_reproduction", "theta", "lp__"))
 traceplot(model_output, c("beta_vals"))
 
 summ_model_output <- summary(model_output)
