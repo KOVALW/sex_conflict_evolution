@@ -3,7 +3,7 @@ source("./data/processing_code/data_cleaning.R")
 #Data read-in----------------
 #Best models determined from looic tables in ./posterior_analysis
 soma_best_model <- 2 #mortality affects both the mean and zero hurdle probability
-nosgal4_best_model <- 3 #mortality affects both the mean and zero hurdle probability, no month-level effects
+nosgal4_best_model <- 3 #mortality affects both the mean and zero hurdle probability, month-level effects included
 
 #Treatment confounding factors and means
 beta_vals <-
