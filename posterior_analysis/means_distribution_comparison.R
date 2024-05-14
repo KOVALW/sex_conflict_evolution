@@ -1,9 +1,12 @@
-require(mclust)
 require(tidyverse)
 
 eta_sex_table <- read_csv("./posterior_analysis/effect_size_summary_alldrivers.csv")
 
 driver <- "Tub" #options are ("Nos", "Act", "Tub")
+
+ret_ll <- function(x) {
+  return(sum(log(dnorm(x,mean(x),sd(x)))))
+}
 
 #collating posterior data-----
 posterior_data <- eta_sex_table %>% 
@@ -89,6 +92,7 @@ posterior_data %>%
 #BIC differences
 bic_table %>% 
   ggplot(aes(x = gene_age, y = delta_bic, group = driver_shortname, col = driver_shortname)) +
+  geom_rect(xmin = -Inf, xmax = Inf, ymin = -1, ymax = 1, fill = "light grey", col = NA,alpha = 0.1) +
   geom_hline(yintercept = 0, lty =2) +
   geom_line()+
   geom_point() +
@@ -105,5 +109,7 @@ bic_table %>%
   geom_line()+
   geom_point() +
   theme_bw() +
-  facet_wrap(sex_chromosome~.)  +
-  labs(x = "Gene age", y = "Male relative fitness benefit")
+  facet_wrap(sex_chromosome~.,
+             labeller = labeller(sex_chromosome = as_labeller(function(x){
+               ifelse(x, "Sex chromosome", "Autosomal chromosome")}))) +
+  labs(x = "Gene age", y = "Male average relative fitness benefit")
