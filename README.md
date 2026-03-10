@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/682659563.svg)](https://doi.org/10.5281/zenodo.18945777)
+
 # Sex conflict evolution
 Project to analyze the evolution of sex conflict in new and old genes of Drosophila melanogaster. We will be modeling offspring distributions in non-essential gene knock-down lines. Project consists of egg count data and fitted Poisson or Negative binomial regression using RStan. Posterior estimates of gene knockdown effects in somatic and germline cells, male and female parentals, or cross combinations will be compared to assess intrahost conflict or sex conflict, respectively, and correlated with gene age and function.
 
